@@ -13,6 +13,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,7 +45,7 @@ fun SharedFridgeOption() {
     ) {
         Text("Shared fridge (preview)")
         Text(user?.email?.let { "Signed in as $it" } ?: "Sign in with your household account.")
-        Text("Account sign-in only. Inventory sharing is not enabled in this build.")
+        Text("Private shared inventory • online preview. Local records remain separate.")
         if (user == null) {
             Button(onClick = { error = ""; showDialog = true }, enabled = !busy) {
                 Text("Sign in")
@@ -53,6 +54,7 @@ fun SharedFridgeOption() {
             TextButton(onClick = { auth.signOut(); password = ""; email = ""; error = "" }) {
                 Text("Sign out")
             }
+            user?.uid?.let { uid -> key(uid) { SharedInventory() } }
         }
     }
 
