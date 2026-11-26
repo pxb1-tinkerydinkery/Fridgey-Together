@@ -3,8 +3,6 @@ name: Android Test APK
 on:
   push:
     branches: [main, 'fridgey-together/**']
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -22,6 +20,16 @@ jobs:
       - uses: android-actions/setup-android@v3
       - name: Install Android SDK 36
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Restore Firebase configuration
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+        run: |
+          if [ -z "$FIREBASE_CONFIG" ]; then
+            echo "::error::FIREBASE_CONFIG repository secret is missing"
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_CONFIG" > app/google-services.json
+          python3 -c 'import json; d=json.load(open("app/google-services.json")); assert any(c["client_info"]["android_client_info"]["package_name"] == "com.fridgeytogether.app" for c in d["client"]), "Firebase Android package does not match"'
       - name: Build test APK
         run: chmod +x gradlew && ./gradlew assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
