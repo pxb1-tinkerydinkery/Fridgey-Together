@@ -32,6 +32,7 @@ import lying.fengfeng.foodrecords.ui.settings.options.AboutAppOption
 import lying.fengfeng.foodrecords.ui.settings.options.DateFormatOption
 import lying.fengfeng.foodrecords.ui.settings.options.FoodTypeOption
 import lying.fengfeng.foodrecords.ui.settings.options.NotificationOption
+import lying.fengfeng.foodrecords.ui.settings.options.SharedFridgeOption
 import lying.fengfeng.foodrecords.ui.settings.options.ShelfLifeOption
 import lying.fengfeng.foodrecords.ui.settings.options.ThemeOption
 
@@ -110,6 +111,8 @@ fun SettingsScreen(
         val titleFontSize = 14.sp
         val subTitleFontSize = 12.sp
         val titlePadding = PaddingValues(start = 8.dp)
+
+        SharedFridgeOption()
 
         // 种类设置
         FoodTypeOption(
