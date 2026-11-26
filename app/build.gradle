@@ -28,7 +28,7 @@ android {
     compileSdkVersion 36
 
     defaultConfig {
-        applicationId "lying.fengfeng.foodrecords"
+        applicationId "com.fridgeytogether.app"
         minSdk 26
         targetSdk 36
         versionCode appVersionCode
