@@ -1,60 +1,31 @@
-name: Android Release CI
+name: Android Test APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, 'fridgey-together/**']
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 34
-        build-tools: 34.0.0
-
-    - name: Decode Keystore
-      env:
-        ENCODED_STRING: ${{ secrets.KEYSTORE_BASE_64 }}
-        RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-        RELEASE_KEYSTORE_ALIAS: ${{ secrets.RELEASE_KEYSTORE_ALIAS }}
-        RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }} 
-
-      run: |
-        echo $ENCODED_STRING > keystore-b64.txt
-        base64 -d keystore-b64.txt > fengfengkeystore.jks
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Build Release apk
-      env:
-        RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-        RELEASE_KEYSTORE_ALIAS: ${{ secrets.RELEASE_KEYSTORE_ALIAS }}
-        RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        BACKEND_HOST: ${{ vars.BACKEND_HOST }}
-      run: ./gradlew assembleRelease --stacktrace
-
-    - name: Get release file apk path
-      id: releaseApk
-      run: echo "apkfile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
-
-    - name: Upload Release Build to Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-         name: release-artifacts
-         path: ${{ steps.releaseApk.outputs.apkfile }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Build test APK
+        run: chmod +x gradlew && ./gradlew assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fridgey-together-test-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
